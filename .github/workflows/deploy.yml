@@ -1,5 +1,6 @@
 name: Deploy to Vercel
 
+# This workflow is triggered by a repository_dispatch event from your MERN dashboard
 on:
   repository_dispatch:
     types: [deploy-triggered]
@@ -8,31 +9,35 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Check out the repository's code
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Step 2: Install the Vercel CLI globally
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # Add your build steps here (e.g., npm install, npm run build)
+      # Step 3: Install project dependencies (e.g., React, Vite)
       - name: Install Dependencies
         run: npm install
+
+      # Step 4: Build the project for production
       - name: Build Project
         run: npm run build
 
+      # Step 5: Deploy the project to Vercel
+      # This is the updated, more robust command. It relies on the .vercel/project.json file
+      # being present in your repository for project linking.
       - name: Deploy to Vercel
         id: vercel_deploy
         run: |
-          # The `vercel --prod --token $VERCEL_TOKEN` command returns the live URL on success
-          # We capture the output. If it fails, the step fails.
-          DEPLOY_URL=$(vercel --prod --token $VERCEL_TOKEN)
+          # The `vercel deploy` command will use the linked project settings.
+          # We pass `--prod` to create a production deployment.
+          # The output of this command is the live deployment URL.
+          DEPLOY_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} --yes)
           echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_ENV
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      # Callback on Success
+        
+      # Step 6 (Callback on Success): Report the successful deployment back to your dashboard
       - name: Report Success to Dashboard
         if: success()
         run: |
@@ -45,7 +50,7 @@ jobs:
             "secret": "${{ secrets.CALLBACK_SECRET }}"
           }'
 
-      # Callback on Failure
+      # Step 7 (Callback on Failure): Report the failed deployment back to your dashboard
       - name: Report Failure to Dashboard
         if: failure()
         run: |
