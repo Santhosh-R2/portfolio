@@ -26,15 +26,13 @@ jobs:
         run: npm run build
 
       # Step 5: Deploy the project to Vercel
-      # This is the updated, more robust command. It relies on the .vercel/project.json file
-      # being present in your repository for project linking.
+      # This is the final corrected command for PERSONAL Vercel accounts.
+      # The `--scope` flag is removed as it causes errors when deploying to a personal account.
+      # The Vercel CLI will automatically use the scope defined in the committed .vercel/project.json file.
       - name: Deploy to Vercel
         id: vercel_deploy
         run: |
-          # The `vercel deploy` command will use the linked project settings.
-          # We pass `--prod` to create a production deployment.
-          # The output of this command is the live deployment URL.
-          DEPLOY_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} --yes)
+          DEPLOY_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes)
           echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_ENV
         
       # Step 6 (Callback on Success): Report the successful deployment back to your dashboard
