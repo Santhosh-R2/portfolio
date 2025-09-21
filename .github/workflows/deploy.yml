@@ -1,0 +1,59 @@
+name: Deploy to Vercel
+
+on:
+  repository_dispatch:
+    types: [deploy-triggered]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Add your build steps here (e.g., npm install, npm run build)
+      - name: Install Dependencies
+        run: npm install
+      - name: Build Project
+        run: npm run build
+
+      - name: Deploy to Vercel
+        id: vercel_deploy
+        run: |
+          # The `vercel --prod --token $VERCEL_TOKEN` command returns the live URL on success
+          # We capture the output. If it fails, the step fails.
+          DEPLOY_URL=$(vercel --prod --token $VERCEL_TOKEN)
+          echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_ENV
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      # Callback on Success
+      - name: Report Success to Dashboard
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.CALLBACK_URL }} \
+          -H "Content-Type: application/json" \
+          -d '{
+            "deploymentId": "${{ github.event.client_payload.deployment_id }}",
+            "status": "success",
+            "liveUrl": "${{ env.DEPLOY_URL }}",
+            "secret": "${{ secrets.CALLBACK_SECRET }}"
+          }'
+
+      # Callback on Failure
+      - name: Report Failure to Dashboard
+        if: failure()
+        run: |
+          curl -X POST ${{ secrets.CALLBACK_URL }} \
+          -H "Content-Type: application/json" \
+          -d '{
+            "deploymentId": "${{ github.event.client_payload.deployment_id }}",
+            "status": "failed",
+            "liveUrl": "",
+            "secret": "${{ secrets.CALLBACK_SECRET }}"
+          }'

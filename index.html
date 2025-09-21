@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Santhosh Rajan — Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Portfolio of Santhosh Rajan — web developer & designer.">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <h1 class="logo">Santhosh Rajan</h1>
+      <nav class="nav">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+  <section class="hero" id="home" role="region" aria-label="Introduction">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <h2>Hello — I'm <span class="accent">Santhosh</span></h2>
+          <p class="lead">I build clean, accessible, and responsive websites using HTML & CSS. Welcome to my portfolio.</p>
+          <p><a class="btn" href="#projects">See Projects</a></p>
+        </div>
+        <div class="hero-photo" aria-hidden="true">
+          <!-- Decorative circular profile placeholder -->
+          <div class="photo-placeholder" role="img" aria-label="Profile initials S R">SR</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="about container" id="about" role="region" aria-label="About me">
+      <h3>About Me</h3>
+      <p>I'm a web developer focused on crafting simple, delightful user experiences with semantic HTML and CSS. I enjoy turning ideas into responsive interfaces and learning new front-end patterns.</p>
+    </section>
+
+    <section class="projects" id="projects" role="region" aria-label="Projects">
+      <div class="container">
+        <h3>Selected Projects</h3>
+        <div class="grid projects-grid">
+          <article class="card">
+            <div class="card-thumb" style="background-image:linear-gradient(135deg,#6dd3ff,#4b6cb7);"></div>
+            <div class="card-body">
+              <h4>Project One</h4>
+              <p>Responsive landing page with CSS Grid and custom components.</p>
+              <a class="card-link" href="#" aria-label="View Project One details">View Case</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-thumb" style="background-image:linear-gradient(135deg,#f6d365,#fda085);"></div>
+            <div class="card-body">
+              <h4>Project Two</h4>
+              <p>Accessible form design with progressive enhancement.</p>
+              <a class="card-link" href="#" aria-label="View Project Two details">View Case</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-thumb" style="background-image:linear-gradient(135deg,#c3cfe2,#cfd9df);"></div>
+            <div class="card-body">
+              <h4>Project Three</h4>
+              <p>Small CSS-only interactive component library.</p>
+              <a class="card-link" href="#" aria-label="View Project Three details">View Case</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="skills container" id="skills">
+      <h3>Skills</h3>
+      <ul class="skills-list">
+        <li>HTML5 &amp; Semantic Markup</li>
+        <li>Responsive Layouts (Grid &amp; Flexbox)</li>
+        <li>CSS (BEM, Custom properties)</li>
+        <li>Accessibility &amp; Performance</li>
+      </ul>
+    </section>
+
+    <section class="contact container" id="contact">
+      <h3>Contact</h3>
+      <p>If you'd like to collaborate, reach out at <a href="mailto:santhosh@example.com">santhosh@example.com</a>.</p>
+      <p>
+        <a class="btn ghost" href="mailto:santhosh@example.com">Email me</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year">2025</span> Santhosh Rajan — Built with HTML & CSS</p>
+    </div>
+  </footer>
+
+  <script>
+    // small script to set current year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
