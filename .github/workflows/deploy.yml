@@ -1,62 +1,44 @@
+# A friendly name for the workflow, which will appear in the Actions tab on GitHub.
 name: Deploy to Vercel
 
-# This workflow is triggered by a repository_dispatch event from your MERN dashboard
+# === THIS IS THE MOST IMPORTANT CHANGE ===
+# This trigger allows the workflow to be started manually via the GitHub API,
+# which is exactly what our MERN application's backend does.
 on:
-  repository_dispatch:
-    types: [deploy-triggered]
+  workflow_dispatch:
 
 jobs:
+  # The 'deploy' job contains all the steps to build and deploy the application.
   deploy:
+    # We use the latest stable version of Ubuntu provided by GitHub Actions.
     runs-on: ubuntu-latest
+    
     steps:
-      # Step 1: Check out the repository's code
+      # Step 1: Checks out your repository under $GITHUB_WORKSPACE, so the job can access it.
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Using the latest major version is good practice
 
-      # Step 2: Install the Vercel CLI globally
+      # Step 2: Install the Vercel Command Line Interface (CLI) globally on the runner.
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # Step 3: Install project dependencies (e.g., React, Vite)
+      # Step 3: Install the project's dependencies defined in package.json and package-lock.json.
       - name: Install Dependencies
         run: npm install
 
-      # Step 4: Build the project for production
+      # Step 4: Run the build script (e.g., 'vite build') to create the production-ready static assets.
       - name: Build Project
         run: npm run build
 
-      # Step 5: Deploy the project to Vercel
-      # This is the final corrected command for PERSONAL Vercel accounts.
-      # The `--scope` flag is removed as it causes errors when deploying to a personal account.
-      # The Vercel CLI will automatically use the scope defined in the committed .vercel/project.json file.
+      # Step 5: Deploy the project to Vercel.
+      # The Vercel CLI will automatically detect the linked project from the .vercel/project.json file.
+      # The --prod flag creates a production deployment.
+      # The --yes flag automatically confirms any prompts from the CLI.
+      # The VERCEL_TOKEN is read from the GitHub repository's encrypted secrets.
       - name: Deploy to Vercel
-        id: vercel_deploy
-        run: |
-          DEPLOY_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes)
-          echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_ENV
-        
-      # Step 6 (Callback on Success): Report the successful deployment back to your dashboard
-      - name: Report Success to Dashboard
-        if: success()
-        run: |
-          curl -X POST ${{ secrets.CALLBACK_URL }} \
-          -H "Content-Type: application/json" \
-          -d '{
-            "deploymentId": "${{ github.event.client_payload.deployment_id }}",
-            "status": "success",
-            "liveUrl": "${{ env.DEPLOY_URL }}",
-            "secret": "${{ secrets.CALLBACK_SECRET }}"
-          }'
-
-      # Step 7 (Callback on Failure): Report the failed deployment back to your dashboard
-      - name: Report Failure to Dashboard
-        if: failure()
-        run: |
-          curl -X POST ${{ secrets.CALLBACK_URL }} \
-          -H "Content-Type: application/json" \
-          -d '{
-            "deploymentId": "${{ github.event.client_payload.deployment_id }}",
-            "status": "failed",
-            "liveUrl": "",
-            "secret": "${{ secrets.CALLBACK_SECRET }}"
-          }'
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+      
+      # === IMPORTANT ===
+      # There are NO MORE `curl` steps to call back to our server.
+      # The real-time update logic is now handled by the frontend polling the GitHub API
+      # via our backend proxy. This makes the workflow file cleaner and more focused.
